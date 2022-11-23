@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ConsoleController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,3 +21,7 @@ Route::post('/login', [AdminController::class,'login']);
 
 // Route::get('/user', [ConsoleController::class,'index']);
 Route::middleware('auth:admin')->get('/user', [ConsoleController::class,'index']);
+
+
+Route::post('/register_user', [UserController::class,'register']);
+Route::post('/login_user', [UserController::class,'login']);
