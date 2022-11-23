@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class AdminController extends Controller
 {
@@ -25,11 +26,10 @@ class AdminController extends Controller
         $admin = Admin::create([
             'username' => $request->username,
             'password' => Hash::make($request->password),
+            'api_token' => Str::random(60),
         ]);
 
-        $token = $admin->createToken('auth_token')->plainTextToken;
-
-        return response()->json(['status' => 200, 'data' => $admin, 'access_token' => $token, 'token_type' => 'Bearer']);
+        return response()->json(['status' => 200, 'data' => $admin]);
     }
 
     public function username()
@@ -39,12 +39,12 @@ class AdminController extends Controller
 
     public function login(Request $request)
     {
-        if (!Auth::guard('admin')->attempt($request->only('username', 'password'))) {
+        if (!Auth::guard('admin-login')->attempt($request->only('username', 'password'))) {
             return response()->json(['status' => 401, 'message' => 'Unauthorized']);
         }
 
         $admin = Admin::where('username', $request['username'])->firstOrFail();
-        $token = $admin->createToken('auth_token')->plainTextToken;
+        $token = $admin->createToken('api_token')->accessToken;
         $admin->token = $token;
         $admin->token_type = 'Bearer';
 

@@ -19,4 +19,4 @@ Route::post('/register', [AdminController::class,'register']);
 Route::post('/login', [AdminController::class,'login']);
 
 // Route::get('/user', [ConsoleController::class,'index']);
-Route::middleware('auth:sanctum')->get('/user', ConsoleController::class,'index');
+Route::middleware('auth:admin')->get('/user', [ConsoleController::class,'index']);

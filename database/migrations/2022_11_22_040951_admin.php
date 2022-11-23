@@ -23,6 +23,7 @@ return new class extends Migration
             $table->enum('gender', ['Laki-laki','perempuan'])->nullable();
             $table->date('birthday')->nullable();
             $table->string('password');
+            $table->string('api_token', 80)->unique()->nullable()->default(null);
             $table->rememberToken();
             $table->timestamps();
             $table->timestamp('email_verified_at')->nullable();
