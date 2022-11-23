@@ -44,7 +44,7 @@ class AdminController extends Controller
         }
 
         $admin = Admin::where('username', $request['username'])->firstOrFail();
-        $token = $admin->createToken('api_token')->accessToken;
+        $token = $admin->createToken('api_token')->plainTextToken;
         $admin->token = $token;
         $admin->token_type = 'Bearer';
 

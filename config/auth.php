@@ -45,7 +45,7 @@ return [
             'provider' => 'admin',
         ],
         'admin' => [
-            'driver' => 'token',
+            'driver' => 'sanctum',
             'provider' => 'admin',
         ],
     ],
