@@ -52,4 +52,13 @@ class UserController extends Controller
             'data' => $admin
         ]);
     }
+
+    public function logout()
+    {
+        Auth::logout();
+
+        return [
+            'message' => 'You have successfully logged out and the token was successfully deleted'
+        ];
+    }
 }

@@ -11,6 +11,11 @@ use Illuminate\Support\Str;
 
 class AdminController extends Controller
 {
+    public function username()
+    {
+        return 'username';
+    }
+    
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -32,11 +37,6 @@ class AdminController extends Controller
         return response()->json(['status' => 200, 'data' => $admin]);
     }
 
-    public function username()
-    {
-        return 'username';
-    }
-
     public function login(Request $request)
     {
         if (!Auth::guard('admin-login')->attempt($request->only('username', 'password'))) {
@@ -52,5 +52,14 @@ class AdminController extends Controller
             'status' => 200,
             'data' => $admin
         ]);
+    }
+
+    public function logout()
+    {
+        auth()->user()->tokens()->delete();
+
+        return [
+            'message' => 'You have successfully logged out and the token was successfully deleted'
+        ];
     }
 }
