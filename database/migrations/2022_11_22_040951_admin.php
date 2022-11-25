@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('admin', function (Blueprint $table){
-            $table->id();
+            $table->string('uuid', 32)->unique()->primary();
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('username')->unique();
@@ -23,7 +23,6 @@ return new class extends Migration
             $table->enum('gender', ['Laki-laki','perempuan'])->nullable();
             $table->date('birthday')->nullable();
             $table->string('password');
-            $table->string('api_token', 80)->unique()->nullable()->default(null);
             $table->rememberToken();
             $table->timestamps();
             $table->timestamp('email_verified_at')->nullable();

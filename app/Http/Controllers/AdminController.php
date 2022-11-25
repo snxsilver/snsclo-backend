@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 
 class AdminController extends Controller
 {
@@ -29,9 +30,9 @@ class AdminController extends Controller
         }
 
         $admin = Admin::create([
+            'uuid' => Uuid::uuid4()->getHex(),
             'username' => $request->username,
             'password' => Hash::make($request->password),
-            'api_token' => Str::random(60),
         ]);
 
         return response()->json(['status' => 200, 'data' => $admin]);
@@ -44,7 +45,7 @@ class AdminController extends Controller
         }
 
         $admin = Admin::where('username', $request['username'])->firstOrFail();
-        $token = $admin->createToken('api_token')->plainTextToken;
+        $token = $admin->createToken('admin_token')->plainTextToken;
         $admin->token = $token;
         $admin->token_type = 'Bearer';
 

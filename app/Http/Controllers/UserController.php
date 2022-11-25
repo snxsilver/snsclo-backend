@@ -8,9 +8,15 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 
 class UserController extends Controller
 {
+    public function username()
+    {
+        return 'username';
+    }
+
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -24,16 +30,12 @@ class UserController extends Controller
         }
 
         $admin = User::create([
+            'uuid' => Uuid::uuid4()->getHex(),
             'username' => $request->username,
             'password' => Hash::make($request->password),
         ]);
 
         return response()->json(['status' => 200, 'data' => $admin]);
-    }
-
-    public function username()
-    {
-        return 'username';
     }
 
     public function login(Request $request)
@@ -43,7 +45,7 @@ class UserController extends Controller
         }
 
         $admin = User::where('username', $request['username'])->firstOrFail();
-        $token = $admin->createToken('api_token')->plainTextToken;
+        $token = $admin->createToken('user_token')->plainTextToken;
         $admin->token = $token;
         $admin->token_type = 'Bearer';
 

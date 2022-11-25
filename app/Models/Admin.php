@@ -12,7 +12,23 @@ class Admin extends Authenticatable
 
     protected $table = "admin";
 
-    protected $fillable = ['first_name', 'last_name', 'username', 'email', 'hp', 'gender', 'birthday','password','api_token'];
+    protected $primaryKey='uuid';
+    public $incrementing = false;
+    protected $keyType='string';
 
-    protected $hidden = ['password'];
+    protected $fillable = [
+        'uuid',
+        'first_name',
+        'last_name',
+        'username',
+        'email',
+        'hp',
+        'gender',
+        'birthday',
+        'password'];
+
+    protected $hidden = [
+        'password',
+        'remember_token'
+    ];
 }

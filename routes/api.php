@@ -20,7 +20,8 @@ Route::post('/register', [AdminController::class,'register']);
 Route::post('/login', [AdminController::class,'login']);
 Route::post('/logout', [AdminController::class,'logout']);
 
-// Route::get('/user', [ConsoleController::class,'index']);
+Route::get('/users', [ConsoleController::class,'index']);
+Route::middleware('auth:admin')->get('/admin', [ConsoleController::class,'index']);
 Route::middleware('auth:user')->get('/user', [ConsoleController::class,'index']);
 
 Route::post('/register_user', [UserController::class,'register']);
