@@ -35,13 +35,13 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return response()->json(['status' => 200, 'data' => $admin]);
+        return response()->json(['status' => 200, 'data' => $admin], 200);
     }
 
     public function login(Request $request)
     {
         if (!Auth::guard('user-login')->attempt($request->only('username', 'password'))) {
-            return response()->json(['status' => 401, 'message' => 'Unauthorized']);
+            return response()->json(['status' => 401, 'message' => 'Unauthorized'], 401);
         }
 
         $admin = User::where('username', $request['username'])->firstOrFail();
@@ -52,15 +52,21 @@ class UserController extends Controller
         return response()->json([
             'status' => 200,
             'data' => $admin
-        ]);
+        ], 200);
     }
 
     public function logout()
     {
         Auth::logout();
 
-        return [
-            'message' => 'You have successfully logged out and the token was successfully deleted'
-        ];
+        if(!Auth::check()){
+            return [
+                'message' => 'You have successfully logged out and the token was successfully deleted'
+            ];
+        } else {
+            return [
+                'message' => 'You are logged in'
+            ];
+        }
     }
 }

@@ -35,13 +35,13 @@ class AdminController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return response()->json(['status' => 200, 'data' => $admin]);
+        return response()->json(['status' => 200, 'data' => $admin], 200);
     }
 
     public function login(Request $request)
     {
         if (!Auth::guard('admin-login')->attempt($request->only('username', 'password'))) {
-            return response()->json(['status' => 401, 'message' => 'Unauthorized']);
+            return response()->json(['status' => 401, 'message' => 'Wrong username and password'], 401);
         }
 
         $admin = Admin::where('username', $request['username'])->firstOrFail();
@@ -52,15 +52,30 @@ class AdminController extends Controller
         return response()->json([
             'status' => 200,
             'data' => $admin
-        ]);
+        ], 200);
+    }
+
+    public function getUser(){
+        if(!Auth::guard('admin')->check()){
+            return response()->json(['status' => 401, 'message' => 'Unauthorized'], 401);
+        } else {
+            $admin = auth('sanctum')->user();
+            return response()->json(['status' => 200, 'message' => $admin], 200);
+        }
     }
 
     public function logout()
     {
-        auth()->user()->tokens()->delete();
+        Auth::logout();
 
-        return [
-            'message' => 'You have successfully logged out and the token was successfully deleted'
-        ];
+        if(!Auth::check()){
+            return [
+                'message' => 'You have successfully logged out and the token was successfully deleted'
+            ];
+        } else {
+            return [
+                'message' => 'You are logged in'
+            ];
+        }
     }
 }

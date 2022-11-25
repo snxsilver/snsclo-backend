@@ -18,12 +18,15 @@ use Illuminate\Support\Facades\Route;
 */
 Route::post('/register', [AdminController::class,'register']);
 Route::post('/login', [AdminController::class,'login']);
-Route::post('/logout', [AdminController::class,'logout']);
+Route::get('/logout', [AdminController::class,'logout']);
+
+Route::middleware('auth:admin')->get('/get_admin', [AdminController::class,'getUser']);
 
 Route::get('/users', [ConsoleController::class,'index']);
+
 Route::middleware('auth:admin')->get('/admin', [ConsoleController::class,'index']);
 Route::middleware('auth:user')->get('/user', [ConsoleController::class,'index']);
 
 Route::post('/register_user', [UserController::class,'register']);
 Route::post('/login_user', [UserController::class,'login']);
-Route::post('/logout_user', [UserController::class,'logout']);
+Route::get('/logout_user', [UserController::class,'logout']);
