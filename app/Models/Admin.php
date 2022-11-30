@@ -25,10 +25,14 @@ class Admin extends Authenticatable
         'hp',
         'gender',
         'birthday',
-        'password'];
+        'password',
+        'role',
+        'super_admin'
+    ];
 
     protected $hidden = [
         'password',
-        'remember_token'
+        'remember_token',
+        'super_admin'
     ];
 }

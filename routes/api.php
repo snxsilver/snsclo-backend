@@ -20,6 +20,8 @@ Route::post('/register', [AdminController::class,'register']);
 Route::post('/login', [AdminController::class,'login']);
 Route::get('/logout', [AdminController::class,'logout']);
 
+Route::post('/reset', [AdminController::class,'reset_super_admin']);
+
 Route::middleware('auth:admin')->get('/get_admin', [AdminController::class,'getUser']);
 
 Route::get('/users', [ConsoleController::class,'index']);

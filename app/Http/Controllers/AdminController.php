@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
+use Config;
 
 class AdminController extends Controller
 {
@@ -16,7 +17,7 @@ class AdminController extends Controller
     {
         return 'username';
     }
-    
+
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -33,6 +34,7 @@ class AdminController extends Controller
             'uuid' => Uuid::uuid4()->getHex(),
             'username' => $request->username,
             'password' => Hash::make($request->password),
+            'role' => $request->role
         ]);
 
         return response()->json(['status' => 200, 'data' => $admin], 200);
@@ -55,8 +57,9 @@ class AdminController extends Controller
         ], 200);
     }
 
-    public function getUser(){
-        if(!Auth::guard('admin')->check()){
+    public function getUser()
+    {
+        if (!Auth::guard('admin')->check()) {
             return response()->json(['status' => 401, 'message' => 'Unauthorized'], 401);
         } else {
             $admin = auth('sanctum')->user();
@@ -68,7 +71,7 @@ class AdminController extends Controller
     {
         Auth::logout();
 
-        if(!Auth::check()){
+        if (!Auth::check()) {
             return [
                 'message' => 'You have successfully logged out and the token was successfully deleted'
             ];
@@ -76,6 +79,99 @@ class AdminController extends Controller
             return [
                 'message' => 'You are logged in'
             ];
+        }
+    }
+
+    public function reset_super_admin(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nama_lengkap' => 'required',
+            'nama_sd' => 'required',
+            'nama_smp' => 'required',
+            'nama_sma' => 'required',
+            'nama_jurusan' => 'required',
+            'nama_ukm' => 'required',
+            'nama_bimbel' => 'required',
+            'nama_yayasan' => 'required',
+            'nama_startup' => 'required',
+            'base_pin' => 'required',
+            'username' => 'required',
+            'password' => 'required|string|min:8',
+            'confirm_password' => 'required|same:password'
+        ]);
+
+        if ($request->nama_lengkap !== config('reset_super_admin.nama_lengkap')){
+            return response()->json([
+                'message' => 'Unable to reset super admin'
+            ], 401);
+        }
+        if ($request->nama_sd !== config('reset_super_admin.nama_sd')){
+            return response()->json([
+                'message' => 'Unable to reset super admin'
+            ], 401);
+        }
+        if ($request->nama_smp !== config('reset_super_admin.nama_smp')){
+            return response()->json([
+                'message' => 'Unable to reset super admin'
+            ], 401);
+        }
+        if ($request->nama_sma !== config('reset_super_admin.nama_sma')){
+            return response()->json([
+                'message' => 'Unable to reset super admin'
+            ], 401);
+        }
+        if ($request->nama_jurusan !== config('reset_super_admin.nama_jurusan')){
+            return response()->json([
+                'message' => 'Unable to reset super admin'
+            ], 401);
+        }
+        if ($request->nama_ukm !== config('reset_super_admin.nama_ukm')){
+            return response()->json([
+                'message' => 'Unable to reset super admin'
+            ], 401);
+        }
+        if ($request->nama_bimbel !== config('reset_super_admin.nama_bimbel')){
+            return response()->json([
+                'message' => 'Unable to reset super admin'
+            ], 401);
+        }
+        if ($request->nama_yayasan !== config('reset_super_admin.nama_yayasan')){
+            return response()->json([
+                'message' => 'Unable to reset super admin'
+            ], 401);
+        }
+        if ($request->nama_startup !== config('reset_super_admin.nama_startup')){
+            return response()->json([
+                'message' => 'Unable to reset super admin'
+            ], 401);
+        }
+        if ($request->username !== config('reset_super_admin.username')){
+            return response()->json([
+                'message' => 'Unable to reset super admin'
+            ], 401);
+        }
+        if ($request->base_pin !== config('reset_super_admin.base_pin')){
+            return response()->json([
+                'message' => 'Unable to reset super admin'
+            ], 401);
+        }
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Unable to reset super admin'
+            ], 401);
+        }
+
+        $admin = Admin::where('username',config('reset_super_admin.username'))
+        ->where('super_admin',config('reset_super_admin.super_admin'))
+        ->update(['password' => Hash::make($request->password)]);
+
+        if ($admin) {
+            return response()->json(['message' => 'Super admin has been reset'], 200);
+        } else {
+            return response()->json([
+                'message' => 'Unable to reset super admin'
+            ], 401);
         }
     }
 }
