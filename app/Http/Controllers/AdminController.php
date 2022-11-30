@@ -23,7 +23,8 @@ class AdminController extends Controller
         $validator = Validator::make($request->all(), [
             'username' => 'required|string|max:255|unique:admin,username',
             'password' => 'required|string|min:8',
-            'confirm_password' => 'required|same:password'
+            'confirm_password' => 'required|same:password',
+            'role' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -34,7 +35,38 @@ class AdminController extends Controller
             'uuid' => Uuid::uuid4()->getHex(),
             'username' => $request->username,
             'password' => Hash::make($request->password),
-            'role' => $request->role
+            'role' => $request->role,
+            'is_active' => 1
+        ]);
+
+        return response()->json(['status' => 200, 'data' => $admin], 200);
+    }
+
+    public function register_super_admin(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'username' => 'required|string|max:255|unique:admin,username',
+            'password' => 'required|string|min:8',
+            'confirm_password' => 'required|same:password',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors());
+        }
+
+        $cek = Admin::where('super_admin', 1)->firstOrFail();
+
+        if ($cek > 0){
+            return response()->json(['status' => 401, 'message' => 'Super admin is already registered'], 401);
+        }
+
+        $admin = Admin::create([
+            'uuid' => Uuid::uuid4()->getHex(),
+            'username' => $request->username,
+            'password' => Hash::make($request->password),
+            'super_admin' => 1,
+            'is_active' => 1,
+            'role' => 'supervisor',
         ]);
 
         return response()->json(['status' => 200, 'data' => $admin], 200);
