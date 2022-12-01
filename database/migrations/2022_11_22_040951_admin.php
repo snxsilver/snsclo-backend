@@ -26,6 +26,7 @@ return new class extends Migration
             $table->enum('role', ['admin','supervisor'])->nullable();
             $table->integer('super_admin')->nullable();
             $table->integer('is_active')->nullable();
+            $table->timestamp('last_seen')->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->timestamp('email_verified_at')->nullable();

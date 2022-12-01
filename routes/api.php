@@ -16,19 +16,33 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::post('/register', [AdminController::class,'register']);
-Route::post('/login', [AdminController::class,'login']);
-Route::get('/logout', [AdminController::class,'logout']);
 
-Route::post('/reset', [AdminController::class,'reset_super_admin']);
+Route::post('/register_super', [AdminController::class, 'register_super_admin']);
+Route::post('/reset', [AdminController::class, 'reset_super_admin']);
 
-Route::middleware('auth:admin')->get('/get_admin', [AdminController::class,'getUser']);
+Route::post('/register', [AdminController::class, 'register']);
+Route::post('/login', [AdminController::class, 'login']);
 
-Route::get('/users', [ConsoleController::class,'index']);
+Route::get('/unauthenticated', function () {
+  return response()->json([
+    'message' => 'Unauthenticated'
+], 401);
+})->name('unauthenticated');
 
-Route::middleware('auth:admin')->get('/admin', [ConsoleController::class,'index']);
-Route::middleware('auth:user')->get('/user', [ConsoleController::class,'index']);
+Route::group(['middleware' => 'auth:admin'], function () {
+  Route::get('/logout', [ConsoleController::class, 'logout']);
+  Route::get('/admin', [ConsoleController::class, 'index']);
+  Route::get('/bodrex', [ConsoleController::class, 'bodrex']);
+});
 
-Route::post('/register_user', [UserController::class,'register']);
-Route::post('/login_user', [UserController::class,'login']);
-Route::get('/logout_user', [UserController::class,'logout']);
+// Route::get('/getid', [AdminController::class,'get_id']);
+
+// Route::middleware('auth:admin-login')->get('/get_admin', [AdminController::class,'getUser']);
+
+Route::get('/users', [ConsoleController::class, 'index']);
+
+Route::middleware('auth:user')->get('/user', [ConsoleController::class, 'index']);
+
+Route::post('/register_user', [UserController::class, 'register']);
+Route::post('/login_user', [UserController::class, 'login']);
+Route::get('/logout_user', [UserController::class, 'logout']);
