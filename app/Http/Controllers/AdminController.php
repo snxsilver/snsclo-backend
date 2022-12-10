@@ -3,15 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Admin;
-use Carbon\Carbon;
+// use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
+// use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
-use Config;
-use Laravel\Sanctum\PersonalAccessToken;
+// use Config;
+// use Laravel\Sanctum\PersonalAccessToken;
 
 class AdminController extends Controller
 {
@@ -45,30 +45,6 @@ class AdminController extends Controller
             'status' => 200,
             'data' => $admin
         ], 200);
-    }
-
-    public function register(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'username' => 'required|string|max:255|unique:admin,username',
-            'password' => 'required|string|min:8',
-            'confirm_password' => 'required|same:password',
-            'role' => 'required'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors());
-        }
-
-        $admin = Admin::create([
-            'uuid' => Uuid::uuid4()->getHex(),
-            'username' => $request->username,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-            'is_active' => 1,
-        ]);
-
-        return response()->json(['status' => 200, 'data' => $admin], 200);
     }
 
     public function register_super_admin(Request $request)

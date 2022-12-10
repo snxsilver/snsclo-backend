@@ -31,8 +31,10 @@ Route::get('/unauthenticated', function () {
 
 Route::group(['middleware' => 'auth:admin'], function () {
   Route::get('/logout', [ConsoleController::class, 'logout']);
-  Route::get('/admin', [ConsoleController::class, 'index']);
-  Route::get('/bodrex', [ConsoleController::class, 'bodrex']);
+
+  Route::get('/admin', [ConsoleController::class, 'admin']);
+  Route::post('/admin_add', [ConsoleController::class, 'admin_add']);
+  Route::post('/admin_block', [ConsoleController::class, 'admin_block']);
 });
 
 // Route::get('/getid', [AdminController::class,'get_id']);
