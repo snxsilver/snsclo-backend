@@ -34,7 +34,11 @@ Route::group(['middleware' => 'auth:admin'], function () {
 
   Route::get('/admin', [ConsoleController::class, 'admin']);
   Route::post('/admin_add', [ConsoleController::class, 'admin_add']);
+  Route::post('/admin_reset', [ConsoleController::class, 'admin_reset']);
   Route::post('/admin_block', [ConsoleController::class, 'admin_block']);
+  Route::post('/admin_delete', [ConsoleController::class, 'admin_delete']);
+
+  Route::post('/profile_update', [ConsoleController::class, 'profile_update']);
 });
 
 // Route::get('/getid', [AdminController::class,'get_id']);

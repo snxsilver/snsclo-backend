@@ -7,6 +7,8 @@ use App\Models\Admin;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+
 use Ramsey\Uuid\Uuid;
 
 class ConsoleController extends Controller
@@ -21,15 +23,29 @@ class ConsoleController extends Controller
             return $next($request);
         });
     }
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
+    public function admin()
+    {
+        $admins = Admin::orderBy('created_at')->get();
+        foreach ($admins as $admin) {
+            $admin->first_name = ucwords($admin->first_name);
+            $admin->last_name = ucwords($admin->last_name);
+            if($admin->last_seen){
+                $admin->last_active = Carbon::parse($admin->last_seen)->diffForHumans();
+            } else {
+                $admin->last_active = 'No Activity';
+            }
+            $admin->block_loading = false;
+            $admin->delete_loading = false;
+        }
+
+        return response()->json($admins, 200);
+    }
+    
     public function admin_add(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'username' => 'required|string|max:255|unique:admin,username',
+            'username' => 'required|string|max:16|unique:admin,username',
             'password' => 'required|string|min:8',
             'confirm_password' => 'required|same:password',
             'role' => 'required'
@@ -50,14 +66,34 @@ class ConsoleController extends Controller
         return response()->json(['status' => 200, 'data' => $admin], 200);
     }
 
-    public function admin_update()
+    public function admin_reset(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'uuid' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors());
+        }
+
+        $id = $request->uuid;
+        $new_password = Str::random(8);
+
+        $query = Admin::where('uuid', $id);
+
+        $username = $query->first()->username;
+
+        $query->update([
+            'password' => Hash::make($new_password),
+        ]);
+
+        return response()->json(['username' => $username, 'new_password' => $new_password], 200);
     }
 
     public function admin_block(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'uuid' => 'required|string|',
+            'uuid' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -77,26 +113,19 @@ class ConsoleController extends Controller
         }
     }
 
-    public function admin()
+    public function admin_delete(Request $request)
     {
-        $admins = Admin::orderBy('created_at')->get();
-        foreach ($admins as $admin) {
-            $admin->first_name = ucwords($admin->first_name);
-            $admin->last_name = ucwords($admin->last_name);
-            if($admin->last_seen){
-                $admin->last_active = Carbon::parse($admin->last_seen)->diffForHumans();
-            } else {
-                $admin->last_active = 'No Activity';
-            }
-            $admin->block_loading = false;
-            $admin->delete_loading = false;
+        $validator = Validator::make($request->all(), [
+            'uuid' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors());
         }
+        $id = $request->uuid;
+        Admin::where('uuid',$id)->delete();
 
-        return response()->json($admins, 200);
-    }
-
-    public function admin_delete()
-    {
+        return response()->json(['message'=>'Admin has been deleted.'],200);
     }
 
     public function logout()
@@ -114,5 +143,36 @@ class ConsoleController extends Controller
                 'message' => 'You are still logged in'
             ];
         }
+    }
+
+    public function profile_update(Request $request){
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required|string|alpha|max:32',
+            'last_name' => 'required|string|alpha|max:32',
+            'username' => 'required|string|alpha_num|max:16|unique:admin,username',
+            'email' => 'required|email',
+            'phone' => ['required','min:10','max:15',"regex:/^(([\+]?[6]{1}[2]{1})|0)[0-9]{9,12}$/"],
+            'gender' => 'required',
+            'birthday' => 'required|date|before:-17 years',
+        ]);
+
+        $used_token = auth()->user()->currentAccessToken();
+        $used_uuid = $used_token->tokenable_id;
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors());
+        }
+
+        Admin::where('uuid', $used_uuid)->update([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'username' => $request->username,
+            'email' => $request->email,
+            'hp' => $request->phone,
+            'gender' => $request->gender,
+            'birthday' => date('Y-m-d', strtotime($request->birthday)),
+        ]);
+
+        return response()->json(['message'=>'Profile has been updated.'], 200);
     }
 }
