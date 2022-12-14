@@ -39,6 +39,9 @@ Route::group(['middleware' => 'auth:admin'], function () {
   Route::post('/admin_delete', [ConsoleController::class, 'admin_delete']);
 
   Route::post('/profile_update', [ConsoleController::class, 'profile_update']);
+  Route::get('/get_profile', [ConsoleController::class, 'get_profile']);
+
+  Route::post('/change_password', [ConsoleController::class, 'change_password']);
 });
 
 // Route::get('/getid', [AdminController::class,'get_id']);
