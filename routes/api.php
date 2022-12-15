@@ -40,8 +40,14 @@ Route::group(['middleware' => 'auth:admin'], function () {
 
   Route::post('/profile_update', [ConsoleController::class, 'profile_update']);
   Route::get('/get_profile', [ConsoleController::class, 'get_profile']);
-
   Route::post('/change_password', [ConsoleController::class, 'change_password']);
+
+  Route::get('/product', [ConsoleController::class, 'product']);
+  Route::post('/get_product', [ConsoleController::class, 'get_product']);
+  Route::post('/product_add', [ConsoleController::class, 'product_add']);
+  Route::post('/product_edit', [ConsoleController::class, 'product_edit']);
+  Route::post('/product_archieve', [ConsoleController::class, 'product_archieve']);
+  Route::post('/product_delete', [ConsoleController::class, 'product_delete']);
 });
 
 // Route::get('/getid', [AdminController::class,'get_id']);

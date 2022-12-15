@@ -17,6 +17,7 @@ class Product extends Model
 
     protected $fillable = [
         'uuid',
+        'code',
         'sampul0',
         'sampul1',
         'sampul2',
@@ -30,5 +31,8 @@ class Product extends Model
         'price',
         'description',
         'weight',
+        'stock',
+        'creator',
+        'is_active',
     ];
 }

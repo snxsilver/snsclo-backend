@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('product', function (Blueprint $table){
             $table->string('uuid', 32)->unique()->primary();
+            $table->string('code');
             $table->string('sampul0');
             $table->string('sampul1')->nullable();
             $table->string('sampul2')->nullable();
@@ -28,6 +29,9 @@ return new class extends Migration
             $table->double('price');
             $table->mediumText('description');
             $table->double('weight');
+            $table->integer('stock');
+            $table->string('creator', 32);
+            $table->integer('is_active');
             $table->timestamps();
         });
     }
