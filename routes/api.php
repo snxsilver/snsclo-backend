@@ -48,6 +48,12 @@ Route::group(['middleware' => 'auth:admin'], function () {
   Route::post('/product_edit', [ConsoleController::class, 'product_edit']);
   Route::post('/product_archieve', [ConsoleController::class, 'product_archieve']);
   Route::post('/product_delete', [ConsoleController::class, 'product_delete']);
+
+  Route::get('/category', [ConsoleController::class, 'category']);
+  Route::post('/get_category', [ConsoleController::class, 'get_category']);
+  Route::post('/category_add', [ConsoleController::class, 'category_add']);
+  Route::post('/category_edit', [ConsoleController::class, 'category_edit']);
+  Route::post('/category_delete', [ConsoleController::class, 'category_delete']);
 });
 
 // Route::get('/getid', [AdminController::class,'get_id']);

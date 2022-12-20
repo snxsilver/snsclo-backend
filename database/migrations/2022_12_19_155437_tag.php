@@ -13,11 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('size', function (Blueprint $table){
+        Schema::create('tag', function (Blueprint $table){
             $table->string('uuid', 32)->unique()->primary();
-            $table->string('product', 32);
-            $table->string('description');
-            $table->integer('order');
+            $table->string('name');
             $table->timestamps();
         });
     }
@@ -29,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('size');
+        Schema::dropIfExists('tag');
     }
 };

@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Size extends Model
+class Tag extends Model
 {
     use HasFactory;
 
-    protected $table = "size";
+    protected $table = "tag";
 
     protected $primaryKey='uuid';
     public $incrementing = false;
@@ -17,8 +17,6 @@ class Size extends Model
 
     protected $fillable = [
         'uuid',
-        'product',
-        'description',
-        'order',
+        'name',
     ];
 }

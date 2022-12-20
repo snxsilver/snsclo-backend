@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Admin;
 use App\Models\Product;
+use App\Models\ProductTag;
+use App\Models\Size;
+use App\Models\Tag;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -211,11 +214,11 @@ class ConsoleController extends Controller
         $query = Admin::where('uuid', $used_uuid);
         $check = $query->first();
 
-        if ($request->username != $check->username){
+        if ($request->username != $check->username) {
             return response()->json(['message' => 'Wrong username and old password.'], 400);
         }
 
-        if (!Hash::check($old_password,$check->password)){
+        if (!Hash::check($old_password, $check->password)) {
             return response()->json(['message' => 'Wrong username and old password.'], 400);
         }
 
@@ -225,7 +228,8 @@ class ConsoleController extends Controller
 
         return response()->json(['message' => 'Password has been updated.'], 200);
     }
-    public function product_add(Request $request){
+    public function product_add(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'sampul' => 'required|mimes:jpg,jpeg,png',
             'title' => 'required',
@@ -233,6 +237,7 @@ class ConsoleController extends Controller
             'description' => 'required',
             'weight' => 'required|numeric',
             'stock' => 'required|numeric',
+            'tag' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -241,18 +246,18 @@ class ConsoleController extends Controller
 
         $code = $request->code ?? Str::random(8);
 
-        $slug = Str::slug($code,'-');
+        $slug = Str::slug($code, '-');
         $gbr = $request->file('sampul');
         $ext = $request->sampul->extension();
-        $gbrnama = $slug.'-'.Str::random(4).'.'.$ext;
-        $path = public_path('images/product/'.$gbrnama);
+        $gbrnama = $slug . '-' . Str::random(4) . '.' . $ext;
+        $path = public_path('images/product/' . $gbrnama);
         $gbresize = Image::make($gbr->path());
-        $gbresize->resize(1024,1024)->save($path);
+        $gbresize->resize(1024, 1024)->save($path);
 
         $used_token = auth()->user()->currentAccessToken();
         $used_uuid = $used_token->tokenable_id;
 
-        Product::create([
+        $product = Product::create([
             'uuid' => Uuid::uuid4()->getHex(),
             'code' => $code,
             'sampul0' => $gbrnama,
@@ -265,9 +270,35 @@ class ConsoleController extends Controller
             'is_active' => 1,
         ]);
 
+        $tag = $request->tag;
+        foreach($tag as $t){
+            ProductTag::create([
+                'uuid' => Uuid::uuid4()->getHex(),
+                'tag' => $t,
+                'product' => $product->uuid,
+            ]);
+        }
+
+        $size = $request->size;
+        $order = 1;
+
+        if (count($size) > 0) {
+            foreach ($size as $s) {
+                if ($s != ''){
+                    Size::create([
+                        'uuid' => Uuid::uuid4()->getHex(),
+                        'product' => $product->uuid,
+                        'description' => $s,
+                        'order' => $order++,
+                    ]);
+                }
+            }
+        }
+
         return response()->json(['message' => 'Product has been created.'], 200);
     }
-    public function product_edit(Request $request){
+    public function product_edit(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'sampul' => 'mimes:jpg,jpeg,png',
             'title' => 'required',
@@ -282,26 +313,26 @@ class ConsoleController extends Controller
         }
 
         $id = $request->uuid;
-        $query = Product::where('uuid',$id);
+        $query = Product::where('uuid', $id);
         $validator2 = $query->count();
         $get_product = $query->first();
 
-        if ($validator2 === 0){
-        return response()->json(['message' => 'Product is invalid.'], 400);
+        if ($validator2 === 0) {
+            return response()->json(['message' => 'Product is invalid.'], 400);
         }
 
         $code = $request->code ?? Str::random(8);
 
-        if ($request->hasFile('sampul')){
-            unlink(public_path('images/product/'.$get_product->sampul0));
+        if ($request->hasFile('sampul')) {
+            unlink(public_path('images/product/' . $get_product->sampul0));
 
-            $slug = Str::slug($code,'-');
+            $slug = Str::slug($code, '-');
             $gbr = $request->file('sampul');
             $ext = $request->sampul->extension();
-            $gbrnama = $slug.'-'.Str::random(4).'.'.$ext;
-            $path = public_path('images/product/'.$gbrnama);
+            $gbrnama = $slug . '-' . Str::random(4) . '.' . $ext;
+            $path = public_path('images/product/' . $gbrnama);
             $gbresize = Image::make($gbr->path());
-            $gbresize->resize(1024,1024)->save($path);
+            $gbresize->resize(1024, 1024)->save($path);
         } else {
             $gbrnama = $get_product->sampul0;
         }
@@ -321,17 +352,48 @@ class ConsoleController extends Controller
             'is_active' => $get_product->is_active,
         ]);
 
+        ProductTag::where('product',$id)->delete();
+
+        $tag = $request->tag;
+        foreach($tag as $t){
+            ProductTag::create([
+                'uuid' => Uuid::uuid4()->getHex(),
+                'tag' => $t,
+                'product' => $id,
+            ]);
+        }
+
+        Size::where('product',$id)->delete();
+
+        $size = $request->size;
+        $order = 1;
+
+        if (count($size) > 0) {
+            foreach ($size as $s) {
+                if ($s != ''){
+                    Size::create([
+                        'uuid' => Uuid::uuid4()->getHex(),
+                        'product' => $id,
+                        'description' => $s,
+                        'order' => $order++
+                    ]);
+                }
+            }
+        }
+
         return response()->json(['message' => 'Product has been updated.'], 200);
     }
-    public function product(){
-        $products = Product::get();
+    public function product()
+    {
+        $products = Product::orderBy('created_at','asc')->get();
         foreach ($products as $product) {
             $product->archieve_loading = false;
             $product->delete_loading = false;
         }
         return response()->json($products, 200);
     }
-    public function get_product(Request $request){
+    public function get_product(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'uuid' => 'required|string',
         ]);
@@ -341,7 +403,27 @@ class ConsoleController extends Controller
         }
         $id = $request->uuid;
 
-        $product = Product::where('uuid',$id)->first();
+        $product = Product::where('uuid', $id)->first();
+        $size = Size::where('product', $id)->orderBy('order','asc')->get();
+        $tag = Tag::orderBy('created_at', 'asc')->get();
+
+        $get_size = [];
+        foreach($size as $s){
+            $get_size[] = $s->description;
+        }
+
+        foreach($tag as $t){
+            $check = ProductTag::where('product',$id)->where('tag',$t->uuid)->count();
+            if ($check > 0){
+                $t->check = true;
+            } else {
+                $t->check = false;
+            }
+        }
+
+        $product->size = $get_size;
+        $product->tag = $tag;
+
         return response()->json($product, 200);
     }
     public function product_archieve(Request $request)
@@ -366,7 +448,8 @@ class ConsoleController extends Controller
             return response()->json(['message' => 'Product has been published.'], 200);
         }
     }
-    public function product_delete(Request $request){
+    public function product_delete(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'uuid' => 'required|string',
         ]);
@@ -378,10 +461,82 @@ class ConsoleController extends Controller
         $query = Product::where('uuid', $id);
         $image = $query->first();
 
-        unlink(public_path('images/product/'.$image->sampul0));
+        unlink(public_path('images/product/' . $image->sampul0));
+
+        Size::where('product', $id)->delete();
+        ProductTag::where('product', $id)->delete();
 
         $query->delete();
 
         return response()->json(['message' => 'Product has been deleted.'], 200);
+    }
+    public function category_add(Request $request){
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        Tag::create([
+            'uuid' => Uuid::uuid4()->getHex(),
+            'name' => $request->name,
+        ]);
+
+        return response()->json(['message' => 'Category has been created.'], 200);
+    }
+    public function category_edit(Request $request){
+        $validator = Validator::make($request->all(), [
+            'uuid' => 'required',
+            'name' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        Tag::where('uuid', $request->uuid)->update([
+            'name' => $request->name,
+        ]);
+
+        return response()->json(['message' => 'Category has been updated.'], 200);
+    }
+    public function category_delete(Request $request){
+        $validator = Validator::make($request->all(), [
+            'uuid' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        Tag::where('uuid',$request->uuid)->delete();
+        ProductTag::where('tag',$request->uuid)->delete();
+
+        return response()->json(['message' => 'Category has been deleted.'], 200);
+    }
+    public function category(){
+        $tags = Tag::orderBy('created_at', 'asc')->get();
+
+        foreach($tags as $tag){
+            $tag->delete_loading = false;
+            $tag->check = false;
+        }
+
+        return response()->json($tags, 200);
+    }
+    public function get_category(Request $request){
+        $validator = Validator::make($request->all(), [
+            'uuid' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        $tag = Tag::where('uuid',$request->uuid)->first();
+
+        return response()->json($tag, 200);
     }
 }
