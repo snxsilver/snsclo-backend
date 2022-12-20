@@ -18,5 +18,7 @@ class Tag extends Model
     protected $fillable = [
         'uuid',
         'name',
+        'show',
+        'order',
     ];
 }

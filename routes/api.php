@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ConsoleController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -44,6 +45,7 @@ Route::group(['middleware' => 'auth:admin'], function () {
 
   Route::get('/product', [ConsoleController::class, 'product']);
   Route::post('/get_product', [ConsoleController::class, 'get_product']);
+  Route::post('/product_category', [ConsoleController::class, 'product_category']);
   Route::post('/product_add', [ConsoleController::class, 'product_add']);
   Route::post('/product_edit', [ConsoleController::class, 'product_edit']);
   Route::post('/product_archieve', [ConsoleController::class, 'product_archieve']);
@@ -51,6 +53,7 @@ Route::group(['middleware' => 'auth:admin'], function () {
 
   Route::get('/category', [ConsoleController::class, 'category']);
   Route::post('/get_category', [ConsoleController::class, 'get_category']);
+  Route::post('/category_product', [ConsoleController::class, 'category_product']);
   Route::post('/category_add', [ConsoleController::class, 'category_add']);
   Route::post('/category_edit', [ConsoleController::class, 'category_edit']);
   Route::post('/category_delete', [ConsoleController::class, 'category_delete']);
@@ -60,7 +63,7 @@ Route::group(['middleware' => 'auth:admin'], function () {
 
 // Route::middleware('auth:admin-login')->get('/get_admin', [AdminController::class,'getUser']);
 
-Route::get('/users', [ConsoleController::class, 'index']);
+Route::get('/product_home', [HomeController::class, 'product_home']);
 
 Route::middleware('auth:user')->get('/user', [ConsoleController::class, 'index']);
 

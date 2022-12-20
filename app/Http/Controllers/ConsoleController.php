@@ -502,6 +502,50 @@ class ConsoleController extends Controller
 
         return response()->json(['message' => 'Category has been updated.'], 200);
     }
+    public function product_category(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'uuid' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        $products = Product::orderBy('created_at','asc')->get();
+        foreach ($products as $product) {
+            $check = ProductTag::where('tag', $request->uuid)->where('product',$product->uuid)->count();
+            if ($check > 0){
+                $product->check = true;
+            } else {
+                $product->check = false;
+            }
+        }
+        return response()->json($products, 200);
+    }
+    public function category_product(Request $request){
+        $validator = Validator::make($request->all(), [
+            'uuid' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        ProductTag::where('tag', $request->uuid)->delete();
+
+        $product = $request->product;
+
+        foreach($product as $p){
+            ProductTag::create([
+                'uuid' => Uuid::uuid4()->getHex(),
+                'tag' => $request->uuid,
+                'product' => $p,
+            ]);
+        }
+
+        return response()->json(['message' => 'Products have been added.'], 200);
+    }
     public function category_delete(Request $request){
         $validator = Validator::make($request->all(), [
             'uuid' => 'required',
@@ -522,6 +566,7 @@ class ConsoleController extends Controller
         foreach($tags as $tag){
             $tag->delete_loading = false;
             $tag->check = false;
+            $tag->count = ProductTag::where('tag',$tag->uuid)->count();
         }
 
         return response()->json($tags, 200);

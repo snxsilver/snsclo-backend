@@ -16,6 +16,8 @@ return new class extends Migration
         Schema::create('tag', function (Blueprint $table){
             $table->string('uuid', 32)->unique()->primary();
             $table->string('name');
+            $table->string('show');
+            $table->string('order');
             $table->timestamps();
         });
     }
