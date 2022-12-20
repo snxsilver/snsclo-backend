@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Admin;
 use App\Models\Product;
 use App\Models\ProductTag;
+use App\Models\Promo;
 use App\Models\Size;
 use App\Models\Tag;
 use Carbon\Carbon;
@@ -583,5 +584,84 @@ class ConsoleController extends Controller
         $tag = Tag::where('uuid',$request->uuid)->first();
 
         return response()->json($tag, 200);
+    }
+    public function promo_add(Request $request){
+        $validator = Validator::make($request->all(), [
+            'product' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        Promo::create([
+            'uuid' => Uuid::uuid4()->getHex(),
+            'product' => $request->product,
+            'discount' => $request->discount,
+            'trigger' => $request->trigger,
+            'duration' => $request->duration,
+        ]);
+
+        return response()->json(['message' => 'Promo has been created.'], 200);
+        // return response()->json($tag, 200);
+    }
+    public function promo_edit(Request $request){
+        $validator = Validator::make($request->all(), [
+            'uuid' => 'required',
+            'product' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        Promo::where('uuid', $request->uuid)->update([
+            'product' => $request->product,
+            'discount' => $request->discount,
+            'trigger' => $request->trigger,
+            'duration' => $request->duration,
+        ]);
+
+        return response()->json(['message' => 'Promo has been updated.'], 200);
+    }
+    public function promo(){
+        $promo = Promo::join('product','promo.product','=','product.uuid')
+        ->select('promo.*','product.title')
+        ->get();
+
+        foreach($promo as $p){
+            $p->delete_loading = false;
+        }
+
+        return response()->json($promo, 200);
+    }
+    public function get_promo(Request $request){
+        $validator = Validator::make($request->all(), [
+            'uuid' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        $promo = Promo::where('promo.uuid',$request->uuid)
+        ->join('product','promo.product','=','product.uuid')
+        ->select('promo.*','product.uuid as puuid')
+        ->first();
+
+        return response()->json($promo, 200);
+    }
+    public function promo_delete(Request $request){
+        $validator = Validator::make($request->all(), [
+            'uuid' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        Promo::where('uuid',$request->uuid)->delete();
+
+        return response()->json(['message' => 'Promo has been deleted.'], 200);
     }
 }

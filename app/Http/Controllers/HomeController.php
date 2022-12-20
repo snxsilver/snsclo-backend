@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ProductTag;
+use App\Models\Promo;
 use App\Models\Size;
 use App\Models\Tag;
 use Illuminate\Http\Request;
@@ -29,5 +30,16 @@ class HomeController extends Controller
         }
 
         return response()->json($tags, 200);
+    }
+    public function product_slider(){
+        $promos = Promo::join('product','promo.product','=','product.uuid')->orderBy('promo.created_at','asc')->get();
+        foreach($promos as $p){
+            $size = Size::where('product',$p->uuid)->orderBy('order','asc')->get();
+
+            $p->size = $size;
+            $p->sampul0 = config('user_add.image').$p->sampul0;
+        }
+
+        return response()->json($promos, 200);
     }
 }

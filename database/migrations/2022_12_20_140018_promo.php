@@ -13,11 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tag', function (Blueprint $table){
+        Schema::create('promo', function (Blueprint $table){
             $table->string('uuid', 32)->unique()->primary();
-            $table->string('name');
-            $table->string('show')->nullable();
-            $table->string('order')->nullable();
+            $table->string('product', 32);
+            $table->double('discount')->nullable();
+            $table->string('trigger')->nullable();
+            $table->dateTime('duration')->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tag');
+        Schema::dropIfExists('promo');
     }
 };

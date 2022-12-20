@@ -57,6 +57,12 @@ Route::group(['middleware' => 'auth:admin'], function () {
   Route::post('/category_add', [ConsoleController::class, 'category_add']);
   Route::post('/category_edit', [ConsoleController::class, 'category_edit']);
   Route::post('/category_delete', [ConsoleController::class, 'category_delete']);
+
+  Route::get('/promo', [ConsoleController::class, 'promo']);
+  Route::post('/get_promo', [ConsoleController::class, 'get_promo']);
+  Route::post('/promo_add', [ConsoleController::class, 'promo_add']);
+  Route::post('/promo_edit', [ConsoleController::class, 'promo_edit']);
+  Route::post('/promo_delete', [ConsoleController::class, 'promo_delete']);
 });
 
 // Route::get('/getid', [AdminController::class,'get_id']);
@@ -64,6 +70,7 @@ Route::group(['middleware' => 'auth:admin'], function () {
 // Route::middleware('auth:admin-login')->get('/get_admin', [AdminController::class,'getUser']);
 
 Route::get('/product_home', [HomeController::class, 'product_home']);
+Route::get('/product_slider', [HomeController::class, 'product_slider']);
 
 Route::middleware('auth:user')->get('/user', [ConsoleController::class, 'index']);
 
